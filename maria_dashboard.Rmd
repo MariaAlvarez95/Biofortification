@@ -1,0 +1,265 @@
+---
+title: 'Biofortification Program'
+author: "Maria Alvarez"
+date: "`r Sys.Date()`"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r, set-chunk-opts, echo = FALSE}
+library(knitr)
+opts_chunk$set(
+  echo = FALSE, warning = FALSE, message = FALSE
+)
+```
+
+
+```{r, load-data, echo = FALSE}
+
+library(flexdashboard)
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(labelled)
+library(DT)
+library(plotly)
+library(ggplot2)
+
+# Cargar datos
+data <- read_excel("Crops.xlsx")
+
+# Convertir columnas a sus tipos correctos
+data <- data %>%
+  mutate(
+    Crop = as.factor(Crop),
+    Food = as.factor(Food),
+    Micronutrient = as.factor(Micronutrient),
+    Country = as.factor(Country),
+    Continent = as.factor(Continent),
+    Variety = as.factor(Variety),
+    Released = as.integer(Released),
+    Concentration_mg = suppressWarnings(as.numeric(as.character(Concentration_mg))),
+    Yield = suppressWarnings(as.numeric(as.character(Yield)))
+  ) %>%
+  drop_na()
+
+```
+
+
+# Data & Information
+=======================================================================
+
+Row {data-height=150}
+-----------------------------------------------------------------------
+
+### **Biofortification Program in Africa, Latin America, and Asia**
+
+Biofortification is the process of increasing minerals and vitamins in edible parts of staple crops through conventional plant breeding, genetic engineering or agronomic practices. This program addresses hidden hunger in underserved communities across three continents.
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+
+### **The Hidden Hunger Crisis** {data-width=500}
+
+Hidden hunger is a global health crisis, driven in large part by poverty. More than 3 billion people around the world—mostly in Africa, Asia, and Latin America—simply can't afford a diet of nourishing, diverse foods that provide enough essential vitamins and minerals (micronutrients).
+
+### **The Response: Nutrient-enriched staple crops** {data-width=500}
+
+Biofortification improves human nutrition and health. Biofortification is particularly impactful for smallholder farming families who eat mostly what they grow themselves and cannot afford diverse diets.
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+
+### **Target Population** {data-width=500}
+
+The target population of this program includes:
+- Smallholder farmers in Africa, Asia, and Latin America
+- Communities experiencing high rates of micronutrient deficiencies
+- Women and children who are most vulnerable to hidden hunger
+
+### **Research Question** {data-width=500}
+
+How can biofortified crops improve both nutritional quality and agricultural yield across different regions and contexts?
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+
+### **Impact and Importance** {data-width=1000}
+
+This project explores the potential of biofortified crops to combat hidden hunger, offering practical solutions for food and nutrition security. By increasing the nutrient content in staple crops, biofortification addresses dietary deficiencies directly, creating sustainable impact in underserved communities. Furthermore, integrating biofortification into CGIAR and NARS breeding programs ensures scalable and long-lasting benefits for future generations.
+
+Row {data-height=150}
+-----------------------------------------------------------------------
+
+### **Author and Links** {data-width=1000}
+
+**Author:** Maria Alvarez  
+**Github repository:** [https://github.com/MariaAlvarez95/Biofortification](https://github.com/MariaAlvarez95/Biofortification)
+
+# Dataset Description
+=======================================================================
+
+### **Dataset Information**
+
+The dataset used in this project comes from HarvestPlus and contains information on biofortified crops, including:
+
+- **Source:** HarvestPlus Biofortification Crop Release database
+- **Sample size:** 450 biofortified crops
+- **Time period:** Data collected from 2004 to 2021
+- **URL:** [https://bcr.harvestplus.org/varieties_released_list?crop](https://bcr.harvestplus.org/varieties_released_list?crop)
+
+### **Variables Included**
+
+The dataset includes the following variables:
+- Crop name and food type
+- Micronutrient type and concentration (mg/kg)
+- Geographic distribution (country, continent)
+- Variety name and year of release
+- Agricultural yield (tons/ha)
+
+### **Collection Methods**
+
+Data was collected through:
+- Surveys of biofortification implementation programs
+- Breeding program reports and documentation
+- Field trials and agricultural performance assessments
+- Laboratory analysis of nutrient concentrations
+
+### **Study Populations**
+
+The data represents:
+- Smallholder farming communities in Africa, Asia, and Latin America
+- Regional breeding initiatives targeting nutrient-deficient areas
+- Diverse agroecological zones where staple crops are cultivated
+- Communities with documented micronutrient deficiencies
+
+Micronutrient Concentration by Crop
+=====================================
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Micronutrient Concentration by Crop
+
+
+```{r, W1, echo = FALSE}
+
+library(plotly)
+
+# Crear el scatter plot
+scatter_plot <- plot_ly(data, x = ~Concentration_mg, y = ~Yield, type = 'scatter', mode = 'markers',
+                        color = ~Micronutrient, text = ~paste("Crop:", Crop, "<br>Variety:", Variety),
+                        hoverinfo = 'text', height = 500) %>%
+  layout(title = "Micronutrient Concentration vs. Yield of Biofortified Crops",
+         xaxis = list(title = "Micronutrient Concentration (mg/kg)"),
+         yaxis = list(title = "Yield (tons/ha)"),
+         margin = list(b = 100),  # Add more bottom margin for caption
+         annotations = list(
+           x = 0, y = -0.2, 
+           text = "Fig 1. Relationship between micronutrient concentration and yield for biofortified crops",
+           showarrow = FALSE,
+           xref = 'paper',
+           yref = 'paper',
+           xanchor = 'left',
+           yanchor = 'top',
+           xshift = 0,
+           yshift = 0,
+           font = list(size = 10, color = "black", style = "italic")
+         ))
+
+scatter_plot
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+#### **Key Takeaways**
+- The scatter plot demonstrates a relationship between micronutrient concentration and yield for biofortified crops.
+- Certain micronutrients, such as Vitamin A, show clusters with higher yield, indicating successful breeding programs.
+- Specifically Sweet Potato (SARI Na) fortified with Vitamin A. 
+- This visualization allows for the identification of crop varieties that are both nutrient-dense and high-yielding.
+
+Yield by Crop and Country
+=====================================
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Interactive Table Biofortification crops
+
+```{r, W2, echo = FALSE}
+
+# Creación de la tabla interactiva completa
+datatable_widget <- datatable(data, options = list(
+  pageLength = 25, 
+  autoWidth = TRUE, 
+  searching = TRUE, 
+  dom = 'Blfrtip',
+  columnDefs = list(list(className = 'dt-center', targets = '_all'))
+), rownames = FALSE, filter = "top")
+
+datatable_widget
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+#### **Key Takeaways**
+- Table in which the user can interact with the Biofortified crops, Concentration of the micronutrient, type of food, region, variety of food, year when the biofortification was released and yield.
+- The interactive filtering capabilities allow for detailed analysis of biofortification efforts across different regions, crops, and micronutrients, helping researchers identify trends and successful varieties.
+- The data shows evolution over time (release dates) of biofortification technologies, demonstrating how breeding programs have improved both nutritional content and agricultural performance in different contexts.
+
+
+Bar Chart: Average Yield by Food Type
+=====================================
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Yield Comparison
+
+```{r, bar-chart, echo = FALSE}
+# Crear gráfico de barras
+avg_yield_plot <- ggplot(data, aes(x = Continent, y = Yield, fill = Food)) +
+  geom_bar(stat = "summary", fun = "mean", position = "dodge") +
+  labs(
+    title = "Average Yield by Continent and Type of Food",
+    x = "Continent",
+    y = "Average Yield (tons/ha)"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.margin = margin(b = 40)  # Add bottom margin
+  )
+
+# Convert to plotly for consistent height control
+ggplotly(avg_yield_plot, height = 500) %>% 
+  layout(
+    margin = list(b = 100),  # Add more bottom margin
+    annotations = list(
+      x = 0, y = -0.2, 
+      text = "Fig 2. Yield comparison between continents and the type of food that was biofortified.",
+      showarrow = FALSE,
+      xref = 'paper',
+      yref = 'paper',
+      xanchor = 'left',
+      yanchor = 'top',
+      xshift = 0,
+      yshift = 0,
+      font = list(size = 10, color = "black", style = "italic")
+    )
+  )
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+#### **Key Takeaways**
+- The bar chart highlights variations in yield by continent and type of food.
+- In Africa and Latino America, exhibit higher average yields for Cassava and sweet potato of 15 tons/ha.
+- In Asia, it highest average yields were Rice and Sweet Potato (~5%)
+- This visualization supports understanding regional strengths and preferences, aiding targeted interventions.
+
+
