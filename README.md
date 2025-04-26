@@ -46,5 +46,5 @@ Biofortification offers a scalable and sustainable solution to combat hidden hun
 * Dataset: Crop.xlsx
 
 ## Deployment
-The dashboard can be viewed at:  
+The dashboard can be viewed at: https://mariaalvarez95.github.io/Biofortification/maria_dashboard.html 
 
